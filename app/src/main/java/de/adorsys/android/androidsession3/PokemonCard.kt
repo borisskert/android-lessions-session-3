@@ -7,8 +7,8 @@ data class PokemonCard(
         val name: String?,
         val nationalPokedexNumber: Int?,
         val types: List<String>,
-        val superType: String?,
-        val number: Int?,
+        val supertype: String?,
+        val number: String?,
         val rarity: String?,
         val subtype: String?
 ) {
