@@ -58,11 +58,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun filterAndSortPokemonCards(pokemonCardResponse: Response<PokemonCardWrapper>): List<PokemonCard> {
-        val pokemonCards = pokemonCardResponse
+        return pokemonCardResponse
                 .body()?.cards
                 .orEmpty()
                 .filter { "Pokémon".equals(it.supertype) }
                 .sortedBy { it.nationalPokedexNumber }
-        return pokemonCards
     }
 }
