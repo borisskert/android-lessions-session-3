@@ -4,7 +4,9 @@ import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.text.method.ScrollingMovementMethod
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.coroutines.experimental.android.UI
+import kotlinx.coroutines.experimental.Dispatchers
+import kotlinx.coroutines.experimental.GlobalScope
+import kotlinx.coroutines.experimental.android.Main
 import kotlinx.coroutines.experimental.launch
 import retrofit2.Response
 import retrofit2.Retrofit
@@ -29,10 +31,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun loadPokemonCardsAndShowThem() {
-        launch {
+        GlobalScope.launch {
             val pokemonCardResponse = restService.getAll().execute()
 
-            launch(UI) {
+            GlobalScope.launch(Dispatchers.Main) {
                 showPokemonCards(pokemonCardResponse)
             }
         }
