@@ -1,5 +1,9 @@
 package de.adorsys.android.androidsession3
 
+import android.os.Parcelable
+import kotlinx.android.parcel.Parcelize
+
+@Parcelize
 data class PokemonCard(
         val id: String,
         val imageUrl: String?,
@@ -11,5 +15,4 @@ data class PokemonCard(
         val number: String?,
         val rarity: String?,
         val subtype: String?
-) {
-}
+) : Parcelable

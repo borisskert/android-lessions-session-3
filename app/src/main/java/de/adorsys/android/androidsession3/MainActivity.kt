@@ -1,5 +1,6 @@
 package de.adorsys.android.androidsession3
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
@@ -42,6 +43,15 @@ class MainActivity() : AppCompatActivity() {
                 pokemon_cards_loading_progress_bar.visibility = View.GONE
             }
         }
+
+        pokemon_cards_listView.setOnItemClickListener { parent, view, position, id ->
+            val pokemonCard: PokemonCard = pokemonCards[position]
+
+            val intent = Intent(this@MainActivity, PokemonDetailActivity::class.java)
+            intent.putExtra(pokemonCardExtra, pokemonCard)
+
+            startActivity(intent)
+        }
     }
 
     private fun loadPokemonCards(): List<PokemonCard> {
@@ -68,5 +78,6 @@ class MainActivity() : AppCompatActivity() {
 
     companion object {
         const val pokemonSuperType = "Pokémon"
+        const val pokemonCardExtra = "pokemon card extra intent extra key"
     }
 }
