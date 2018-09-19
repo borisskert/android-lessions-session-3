@@ -1,8 +1,9 @@
 package de.adorsys.android.androidsession3
 
-import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import android.text.method.ScrollingMovementMethod
+import android.view.View
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.experimental.Dispatchers
 import kotlinx.coroutines.experimental.GlobalScope
@@ -12,7 +13,9 @@ import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 
-class MainActivity : AppCompatActivity() {
+class MainActivity() : AppCompatActivity() {
+
+    private val pokemonCards: ArrayList<PokemonCard> = ArrayList<PokemonCard>()
 
     private val retrofit = Retrofit.Builder()
             .baseUrl("https://api.pokemontcg.io/")
@@ -25,45 +28,47 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        result_pokemon_textView.movementMethod = ScrollingMovementMethod()
-
         loadPokemonCardsAndShowThem()
     }
 
     private fun loadPokemonCardsAndShowThem() {
+        pokemon_cards_loading_progress_bar.visibility = View.VISIBLE
+
         GlobalScope.launch {
             val pokemonCardResponse = restService.getAll().execute()
 
             GlobalScope.launch(Dispatchers.Main) {
-                showPokemonCards(pokemonCardResponse)
+                pokemonCards.addAll(loadPokemonCards(pokemonCardResponse))
+
+                pokemon_cards_listView.adapter = PokemonListViewAdapter(this@MainActivity, pokemonCards)
+
+                pokemon_cards_loading_progress_bar.visibility = View.GONE
             }
         }
     }
 
-    private fun showPokemonCards(pokemonCardResponse: Response<PokemonCardWrapper>) {
+    private fun loadPokemonCards(pokemonCardResponse: Response<PokemonCardWrapper>): List<PokemonCard> {
+        val pokemonCards: List<PokemonCard>
+
         if (pokemonCardResponse.isSuccessful) {
-            val pokemonCards = filterAndSortPokemonCards(pokemonCardResponse)
-            result_pokemon_textView.text = buildResultText(pokemonCards)
+            pokemonCards = filterAndSortPokemonCards(pokemonCardResponse)
         } else {
-            result_pokemon_textView.text = "Error while getting pokemon cards"
-        }
-    }
-
-    private fun buildResultText(pokemonCards: List<PokemonCard>): String {
-        var resultString = ""
-
-        pokemonCards.forEach {
-            resultString += " " + it.nationalPokedexNumber + " " + it.name + "\n"
+            pokemonCards = ArrayList<PokemonCard>()
+            Toast.makeText(this@MainActivity, "Error while loading pokemon cards", Toast.LENGTH_SHORT).show()
         }
 
-        return resultString
+        return pokemonCards
     }
 
     private fun filterAndSortPokemonCards(pokemonCardResponse: Response<PokemonCardWrapper>): List<PokemonCard> {
         return pokemonCardResponse
                 .body()?.cards
                 .orEmpty()
-                .filter { "Pokémon".equals(it.supertype) }
+                .filter { pokemonSuperType.equals(it.supertype) }
                 .sortedBy { it.nationalPokedexNumber }
+    }
+
+    companion object {
+        const val pokemonSuperType = "Pokémon"
     }
 }
