@@ -35,19 +35,17 @@ class MainActivity() : AppCompatActivity() {
         pokemon_cards_loading_progress_bar.visibility = View.VISIBLE
 
         GlobalScope.launch {
-            val pokemonCardResponse = restService.getAll().execute()
+            pokemonCards.addAll(loadPokemonCards())
 
             GlobalScope.launch(Dispatchers.Main) {
-                pokemonCards.addAll(loadPokemonCards(pokemonCardResponse))
-
                 pokemon_cards_listView.adapter = PokemonListViewAdapter(this@MainActivity, pokemonCards)
-
                 pokemon_cards_loading_progress_bar.visibility = View.GONE
             }
         }
     }
 
-    private fun loadPokemonCards(pokemonCardResponse: Response<PokemonCardWrapper>): List<PokemonCard> {
+    private fun loadPokemonCards(): List<PokemonCard> {
+        val pokemonCardResponse = restService.getAll().execute()
         val pokemonCards: List<PokemonCard>
 
         if (pokemonCardResponse.isSuccessful) {
